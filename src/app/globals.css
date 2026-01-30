@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --reppy-dark: rgb(10, 10, 10);
+    --reppy-green: #7beb89;
+    --reppy-green-hover: #45814d;
+    --reppy-green-hightlight: #3b6841;
+  }
+}
+
+html {
+  transition: none !important;
+}
+
+body {
+  transition: background-color 0.1s ease-in-out !important;
+}
+
+[class*="chakra"] {
+  transition:
+    background-color 0.1s ease-in-out,
+    color 0.1s ease-in-out,
+    border-color 0.1s ease-in-out,
+    opacity 0.1s ease-in-out !important;
+}
+
+div,
+button,
+input,
+a,
+span,
+p,
+h1,
+h1,
+h3,
+h4,
+h5,
+h6 {
+  transition:
+    background-color 0.1s ease-in-out,
+    color 0.1s ease-in-out,
+    border-color 0.1s ease-in-out !important;
+}
