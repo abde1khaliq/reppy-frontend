@@ -7,7 +7,6 @@ import {
   Text,
   VStack,
   HStack,
-  Button,
   Card,
   CardBody,
   Badge,
@@ -17,16 +16,10 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Dumbbell,
-  Pencil,
-  Play,
-  Timer,
-  Target,
-  ChevronDown,
-} from "lucide-react";
+import { Dumbbell, Pencil, Play } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import CreateWorkoutButton from "./CreateWorkoutButton";
 
 const MotionCard = motion.create(Card.Root);
 const MotionBox = motion.create(Box);
@@ -36,10 +29,6 @@ const UserWorkouts = () => {
   const { workouts, loading } = useWorkouts(session);
 
   const [selectedWorkout, setSelectedWorkout] = useState<number | null>(null);
-
-  const handleCreateWorkout = () => {
-    console.log("Create new workout");
-  };
 
   const handleEditWorkout = (e: React.MouseEvent, workoutId: number) => {
     e.stopPropagation();
@@ -79,15 +68,7 @@ const UserWorkouts = () => {
             </Text>
           </VStack>
 
-          <Button
-            bg="var(--reppy-green)"
-            color="black"
-            size={{ base: "md", md: "lg" }}
-            _hover={{ bg: "var(--reppy-green)", opacity: 0.9 }}
-            onClick={handleCreateWorkout}
-          >
-            Create Workout
-          </Button>
+          <CreateWorkoutButton />
         </Flex>
 
         {/* Workouts Grid */}
@@ -182,26 +163,6 @@ const UserWorkouts = () => {
                                 _dark={{ color: "gray.400" }}
                               >
                                 {workout.exercises?.length || 0} exercises
-                              </Text>
-                            </HStack>
-                            <HStack gap={1.5} align="center">
-                              <Box
-                                w="4px"
-                                h="4px"
-                                borderRadius="full"
-                                bg="var(--reppy-green)"
-                                flexShrink={0}
-                              />
-                              <Text
-                                fontSize="sm"
-                                color="gray.600"
-                                _dark={{ color: "gray.400" }}
-                              >
-                                {workout.exercises?.reduce(
-                                  (acc, ex) => acc + (ex.sets || 0),
-                                  0,
-                                ) || 0}{" "}
-                                sets
                               </Text>
                             </HStack>
                           </HStack>
@@ -382,7 +343,7 @@ const UserWorkouts = () => {
                                     letterSpacing="0.05em"
                                     mt={1}
                                   >
-                                    Reps
+                                    MAX Reps
                                   </Text>
                                 </VStack>
                               </Flex>
