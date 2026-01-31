@@ -1,6 +1,5 @@
 import useExercises from "@/app/hooks/useExercises";
 import {
-  Box,
   Button,
   Dialog,
   Drawer,
@@ -10,15 +9,94 @@ import {
   HStack,
   Text,
   Separator,
+  Spinner,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
+
+interface SelectedExercise {
+  id: number;
+  name: string;
+  sets: number;
+  reps: number;
+}
 
 const CreateWorkoutButton = () => {
   const { data: session } = useSession();
   const { exercises, loading, error } = useExercises(session);
+  const [workoutName, setWorkoutName] = useState("");
+  const [selectedExercises, setSelectedExercises] = useState<
+    SelectedExercise[]
+  >([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  async function storeWorkout() {
+    if (!session?.accessToken) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const workout_payload = { title: workoutName };
+      const workout_creation_response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/reppy_api/workouts/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${session.accessToken}`,
+          },
+          body: JSON.stringify(workout_payload),
+        },
+      );
+
+      if (!workout_creation_response.ok) {
+        throw new Error("Failed to create workout");
+      }
+
+      const data = await workout_creation_response.json();
+      const workoutId = data.id;
+
+      const exercise_payload = selectedExercises.map((ex) => ({
+        sets: ex.sets,
+        reps: ex.reps,
+        exercise: ex.id,
+      }));
+
+      const exercise_add_response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/reppy_api/workouts/${workoutId}/exercises/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${session.accessToken}`,
+          },
+          body: JSON.stringify(exercise_payload),
+        },
+      );
+
+      if (!exercise_add_response.ok) {
+        const errText = await exercise_add_response.text();
+        throw new Error(`Failed to add exercises: ${errText}`);
+      }
+
+      console.log("Workout created successfully with exercises!");
+      setIsSubmitting(false);
+      setDrawerOpen(false);
+      setDialogOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   return (
-    <Dialog.Root size="md" motionPreset="slide-in-bottom">
+    <Dialog.Root
+      size="md"
+      motionPreset="slide-in-bottom"
+      open={dialogOpen}
+      onOpenChange={(e) => setDialogOpen(e.open)}
+    >
       <Dialog.Trigger asChild>
         <Button bg="var(--reppy-green)" color="black" fontWeight="600">
           Create Workout
@@ -60,6 +138,7 @@ const CreateWorkoutButton = () => {
                 borderColor="gray.800"
                 _placeholder={{ color: "gray.500" }}
                 _focus={{ borderColor: "var(--reppy-green)" }}
+                onChange={(e) => setWorkoutName(e.target.value)}
               />
             </VStack>
           </Dialog.Header>
@@ -78,7 +157,10 @@ const CreateWorkoutButton = () => {
                   Exercises
                 </Heading>
 
-                <Drawer.Root>
+                <Drawer.Root
+                  open={drawerOpen}
+                  onOpenChange={(e) => setDrawerOpen(e.open)}
+                >
                   <Drawer.Trigger asChild>
                     <Button
                       bg="gray.900"
@@ -144,47 +226,82 @@ const CreateWorkoutButton = () => {
                             _focus={{ borderColor: "var(--reppy-green)" }}
                           />
                           <Separator mb={2} mt={2} borderColor="gray.900" />
-                          {exercises.map((exercise) => (
-                            <Button
-                              key={exercise.name}
-                              variant="ghost"
-                              justifyContent="start"
-                              borderRadius="lg"
-                              border="1px solid"
-                              borderColor="gray.900"
-                              py={5}
-                            >
-                              <HStack w="100%" justify="space-between">
-                                <Text
-                                  fontSize="sm"
-                                  fontWeight="600"
-                                  color="white"
-                                >
-                                  {exercise.name}
-                                </Text>
-                                <Text
-                                  bg="gray.800"
-                                  px={2}
-                                  py={0.5}
-                                  borderRadius="md"
-                                  fontSize="10px"
-                                  fontWeight="700"
-                                  color="gray.400"
-                                  textTransform="uppercase"
-                                >
-                                  {exercise.category.name}
-                                </Text>
-                              </HStack>
-                            </Button>
-                          ))}
+                          {loading ? (
+                            <Spinner />
+                          ) : (
+                            exercises.map((exercise) => (
+                              <Button
+                                key={exercise.id}
+                                variant="ghost"
+                                justifyContent="start"
+                                borderRadius="lg"
+                                border="1px solid"
+                                borderColor={
+                                  selectedExercises.find(
+                                    (ex) => ex.id === exercise.id,
+                                  )
+                                    ? "var(--reppy-green)" // distinct border when selected
+                                    : "gray.900"
+                                }
+                                py={5}
+                                onClick={() => {
+                                  setSelectedExercises(
+                                    (prev) =>
+                                      prev.find((ex) => ex.id === exercise.id)
+                                        ? prev.filter(
+                                            (ex) => ex.id !== exercise.id,
+                                          ) // remove if already selected
+                                        : [
+                                            ...prev,
+                                            { ...exercise, sets: 1, reps: 10 },
+                                          ], // add if not selected
+                                  );
+                                }}
+                              >
+                                <HStack w="100%" justify="space-between">
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight="600"
+                                    color="white"
+                                  >
+                                    {exercise.name}
+                                  </Text>
+                                </HStack>
+                              </Button>
+                            ))
+                          )}
                         </VStack>
                       </Drawer.Body>
 
-                      <Drawer.Footer px={5} pb={5}>
-                        <Button variant="outline" w="full" onClick={() => {}}>
-                          Cancel
+                      {/* <Drawer.Footer px={5} pb={5}>
+                        <Button
+                          variant={
+                            selectedExercises.length > 0 ? "solid" : "outline"
+                          }
+                          w="full"
+                          bg={
+                            selectedExercises.length > 0
+                              ? "var(--reppy-green)"
+                              : undefined
+                          }
+                          color={
+                            selectedExercises.length > 0 ? "black" : "white"
+                          }
+                          onClick={() => {
+                            if (selectedExercises.length > 0) {
+                              // Close drawer automatically when exercises are added
+                              // Drawer.CloseTrigger will handle closing
+                            } else {
+                              // Just cancel
+                            }
+                          }}
+                        >
+                          {selectedExercises.length > 0
+                            ? "Add Exercises"
+                            : "Cancel"}
                         </Button>
-                      </Drawer.Footer>
+                      </Drawer.Footer> */}
+
                       <Drawer.CloseTrigger color="white" />
                     </Drawer.Content>
                   </Drawer.Positioner>
@@ -192,39 +309,52 @@ const CreateWorkoutButton = () => {
               </HStack>
 
               <VStack align="stretch" gap={2}>
-                <HStack
-                  justify="space-between"
-                  p={3}
-                  border="1px solid"
-                  borderColor="gray.900"
-                  borderRadius="xl"
-                >
-                  <Text fontSize="sm" fontWeight="600" color="white">
-                    Bench Press
-                  </Text>
-                  <HStack gap={3}>
-                    <Text
-                      fontSize="10px"
-                      fontWeight="700"
-                      color="gray.500"
-                      textTransform="uppercase"
-                    >
-                      Sets
+                {selectedExercises.map((exercise) => (
+                  <HStack
+                    key={exercise.id}
+                    justify="space-between"
+                    p={3}
+                    border="1px solid"
+                    borderColor="gray.900"
+                    borderRadius="xl"
+                  >
+                    <Text fontSize="sm" fontWeight="600" color="white">
+                      {exercise.name}
                     </Text>
-                    <Input
-                      type="number"
-                      w="50px"
-                      h="8"
-                      textAlign="center"
-                      defaultValue={1}
-                      borderRadius="md"
-                      bg="gray.900"
-                      border="none"
-                      color="white"
-                      fontWeight="700"
-                    />
+                    <HStack gap={3}>
+                      <Text
+                        fontSize="10px"
+                        fontWeight="700"
+                        color="gray.500"
+                        textTransform="uppercase"
+                      >
+                        Sets
+                      </Text>
+                      <Input
+                        type="number"
+                        w="50px"
+                        h="8"
+                        textAlign="center"
+                        value={exercise.sets}
+                        borderRadius="md"
+                        bg="gray.900"
+                        border="none"
+                        color="white"
+                        fontWeight="700"
+                        onChange={(e) => {
+                          const newSets = parseInt(e.target.value, 0);
+                          setSelectedExercises((prev) =>
+                            prev.map((ex) =>
+                              ex.id === exercise.id
+                                ? { ...ex, sets: newSets }
+                                : ex,
+                            ),
+                          );
+                        }}
+                      />
+                    </HStack>
                   </HStack>
-                </HStack>
+                ))}
               </VStack>
             </VStack>
           </Dialog.Body>
@@ -237,8 +367,11 @@ const CreateWorkoutButton = () => {
               h="12"
               fontWeight="700"
               _hover={{ opacity: 0.9 }}
+              onClick={storeWorkout}
+              disabled={isSubmitting}
             >
-              Save Workout
+              {isSubmitting ? <Spinner size="sm" mr={2} /> : null}
+              {isSubmitting ? "" : "Save Workout"}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

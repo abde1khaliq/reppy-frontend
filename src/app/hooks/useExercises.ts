@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 
-interface Category {
-  id: number;
-  name: string;
-}
-
 interface Exercise {
   id: number;
   name: string;
-  category: Category;
 }
 
 export default function useExercises(session: { accessToken?: string } | null) {

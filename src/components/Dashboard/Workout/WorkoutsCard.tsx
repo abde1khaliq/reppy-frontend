@@ -263,7 +263,7 @@ const Workouts = () => {
                                   >
                                     {exercise.exercise.name}
                                   </Text>
-                                  <Badge
+                                  {/* <Badge
                                     size="sm"
                                     colorPalette="green"
                                     variant="subtle"
@@ -274,7 +274,7 @@ const Workouts = () => {
                                     fontWeight="500"
                                   >
                                     {exercise.exercise.category.name}
-                                  </Badge>
+                                  </Badge> */}
                                 </VStack>
                               </HStack>
 

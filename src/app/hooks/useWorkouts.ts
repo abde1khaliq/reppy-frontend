@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 
-interface ExerciseCategory {
-  id: number;
-  name: string;
-}
-
 interface ExerciseBase {
   id: number;
   name: string;
-  category: ExerciseCategory;
 }
 
 interface WorkoutExercise {
