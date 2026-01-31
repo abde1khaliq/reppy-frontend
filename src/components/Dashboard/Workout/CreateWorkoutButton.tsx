@@ -240,21 +240,20 @@ const CreateWorkoutButton = () => {
                                   selectedExercises.find(
                                     (ex) => ex.id === exercise.id,
                                   )
-                                    ? "var(--reppy-green)" // distinct border when selected
+                                    ? "var(--reppy-green)"
                                     : "gray.900"
                                 }
                                 py={5}
                                 onClick={() => {
-                                  setSelectedExercises(
-                                    (prev) =>
-                                      prev.find((ex) => ex.id === exercise.id)
-                                        ? prev.filter(
-                                            (ex) => ex.id !== exercise.id,
-                                          ) // remove if already selected
-                                        : [
-                                            ...prev,
-                                            { ...exercise, sets: 1, reps: 0 },
-                                          ], // add if not selected
+                                  setSelectedExercises((prev) =>
+                                    prev.find((ex) => ex.id === exercise.id)
+                                      ? prev.filter(
+                                          (ex) => ex.id !== exercise.id,
+                                        )
+                                      : [
+                                          ...prev,
+                                          { ...exercise, sets: 1, reps: 0 },
+                                        ],
                                   );
                                 }}
                               >
