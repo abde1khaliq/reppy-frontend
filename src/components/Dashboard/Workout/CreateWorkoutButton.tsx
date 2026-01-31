@@ -117,11 +117,25 @@ const CreateWorkoutButton = () => {
                           Select Exercise
                         </Drawer.Title>
                       </Drawer.Header>
-
-                      {/* Drawer.Body automatically handles overflow in Chakra v3, 
-          but we ensure it stays scrollable here. 
-      */}
-                      <Drawer.Body overflowY="auto" px={5} pb={5}>
+                      <Drawer.Body
+                        px={5}
+                        pb={5}
+                        overflowY="auto"
+                        css={{
+                          "&::-webkit-scrollbar": {
+                            width: "4px",
+                          },
+                          "&::-webkit-scrollbar-track": {
+                            background: "transparent",
+                          },
+                          "&::-webkit-scrollbar-thumb": {
+                            background: "var(--reppy-green)",
+                            borderRadius: "10px",
+                          },
+                          scrollbarWidth: "thin",
+                          scrollbarColor: "var(--reppy-green) transparent",
+                        }}
+                      >
                         <VStack align="stretch" gap={2}>
                           <Input
                             placeholder="Search Exercises..."
