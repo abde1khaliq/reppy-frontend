@@ -186,7 +186,7 @@ const StreakCard = () => {
       if (!session?.accessToken) return;
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}auth/users/me`,
+          `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/auth/users/me`,
           {
             headers: {
               "Content-Type": "application/json",

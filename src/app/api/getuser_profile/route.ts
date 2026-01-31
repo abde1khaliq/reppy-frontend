@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 export async function GET() {
   const session = await getServerSession(authOptions);
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}reppy_api/v1/profiles/me`,
+    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/reppy_api/profiles/me`,
     {
       method: "GET",
       headers: {
