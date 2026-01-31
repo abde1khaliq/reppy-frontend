@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}auth/users/`,
+    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/auth/users/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}reppy_api/v1/profiles/`,
+    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/reppy_api/profiles/`,
     {
       method: "POST",
       headers: {
