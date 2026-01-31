@@ -253,7 +253,7 @@ const CreateWorkoutButton = () => {
                                           ) // remove if already selected
                                         : [
                                             ...prev,
-                                            { ...exercise, sets: 1, reps: 10 },
+                                            { ...exercise, sets: 1, reps: 0 },
                                           ], // add if not selected
                                   );
                                 }}
