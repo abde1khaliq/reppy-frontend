@@ -1,3 +1,4 @@
+import useExercises from "@/app/hooks/useExercises";
 import {
   Box,
   Button,
@@ -10,8 +11,12 @@ import {
   Text,
   Separator,
 } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 
 const CreateWorkoutButton = () => {
+  const { data: session } = useSession();
+  const { exercises, loading, error } = useExercises(session);
+
   return (
     <Dialog.Root size="md" motionPreset="slide-in-bottom">
       <Dialog.Trigger asChild>
@@ -94,6 +99,9 @@ const CreateWorkoutButton = () => {
                     <Drawer.Content
                       w="100%"
                       maxW={{ base: "100%", sm: "sm" }}
+                      maxH="80dvh"
+                      display="flex"
+                      flexDirection="column"
                       borderRadius="5px"
                       alignSelf="center"
                       bg="black"
@@ -110,7 +118,10 @@ const CreateWorkoutButton = () => {
                         </Drawer.Title>
                       </Drawer.Header>
 
-                      <Drawer.Body>
+                      {/* Drawer.Body automatically handles overflow in Chakra v3, 
+          but we ensure it stays scrollable here. 
+      */}
+                      <Drawer.Body overflowY="auto" px={5} pb={5}>
                         <VStack align="stretch" gap={2}>
                           <Input
                             placeholder="Search Exercises..."
@@ -119,16 +130,9 @@ const CreateWorkoutButton = () => {
                             _focus={{ borderColor: "var(--reppy-green)" }}
                           />
                           <Separator mb={2} mt={2} borderColor="gray.900" />
-                          {[
-                            { name: "Squat", category: "Legs" },
-                            { name: "Deadlift", category: "Back/Legs" },
-                            { name: "Pull Ups", category: "Back" },
-                            { name: "Shoulder Press", category: "Shoulders" },
-                            { name: "Lunge", category: "Legs" },
-                            { name: "Bench Press", category: "Chest" },
-                          ].map((item) => (
+                          {exercises.map((exercise) => (
                             <Button
-                              key={item.name}
+                              key={exercise.name}
                               variant="ghost"
                               justifyContent="start"
                               borderRadius="lg"
@@ -142,7 +146,7 @@ const CreateWorkoutButton = () => {
                                   fontWeight="600"
                                   color="white"
                                 >
-                                  {item.name}
+                                  {exercise.name}
                                 </Text>
                                 <Text
                                   bg="gray.800"
@@ -154,13 +158,14 @@ const CreateWorkoutButton = () => {
                                   color="gray.400"
                                   textTransform="uppercase"
                                 >
-                                  {item.category}
+                                  {exercise.category.name}
                                 </Text>
                               </HStack>
                             </Button>
                           ))}
                         </VStack>
                       </Drawer.Body>
+
                       <Drawer.Footer px={5} pb={5}>
                         <Button variant="outline" w="full" onClick={() => {}}>
                           Cancel
