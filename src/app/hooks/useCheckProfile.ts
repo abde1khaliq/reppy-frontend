@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function useCheckProfile() {
-  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [profileData, setProfileData] = useState<any | null>(null);
 
   useEffect(() => {
     const checkUserProfile = async () => {
@@ -14,15 +14,21 @@ export default function useCheckProfile() {
             "Content-Type": "application/json",
           },
         });
-        setHasProfile(response.ok);
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(data);
+        } else {
+          setProfileData(false);
+        }
       } catch (error) {
         console.error("Error checking profile:", error);
-        setHasProfile(false);
+        setProfileData(false);
       }
     };
 
     checkUserProfile();
   }, []);
 
-  return hasProfile;
+  return profileData;
 }

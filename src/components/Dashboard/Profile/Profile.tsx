@@ -1,5 +1,6 @@
 "use client";
 
+import useCheckProfile from "@/app/hooks/useCheckProfile";
 import {
   Box,
   Heading,
@@ -12,30 +13,20 @@ import {
   Avatar,
   Grid,
   GridItem,
+  Button,
 } from "@chakra-ui/react";
-import {
-  Flame,
-  Calendar,
-  Dumbbell,
-  Heart,
-  MessageCircle,
-  TrendingUp,
-} from "lucide-react";
+import { Flame, Calendar } from "lucide-react";
+import Link from "next/link";
 
-interface Post {
-  id: string;
-  content: string;
-  date: string;
-  likes: number;
-  comments: number;
-  workoutDetails?: {
-    name: string;
-    duration: number;
-    calories: number;
-  };
+interface UserProfile {
+  nickname: string;
+  bio: string;
+  gender: string;
+  status_message: string;
+  current_streak: number;
 }
 
-const MOCK_USER = {
+const hasProfile = {
   id: "u1",
   nickname: "Gymawy",
   bio: "Ana b7b aroo7 el gym kol youm. 💪 Fitness enthusiast",
@@ -48,17 +39,54 @@ const MOCK_USER = {
   joinedDate: "January 2025",
 };
 
-const MOCK_POSTS: Post[] = [
-  {
-    id: "p1",
-    content: "Just crushed on bench press! 100kg for 5 reps 🔥💪",
-    date: "2 hours ago",
-    likes: 43,
-    comments: 8,
-  },
-];
-
 const ProfilePanel = () => {
+  const hasProfile = useCheckProfile();
+
+  if (hasProfile === null) return null;
+
+  if (hasProfile === false) {
+    return (
+      <VStack
+        h={"100%"}
+        justify="center"
+        align="center"
+        py={10}
+        px={5}
+        gap={8}
+        textAlign="center"
+        w="100%"
+      >
+        <VStack gap={3}>
+          <Heading size="xl" color="white">
+            Profile Incomplete
+          </Heading>
+          <Text color="gray.500" fontSize="md" maxW="300px">
+            Create your profile to track progress, save workouts, and see your
+            stats.
+          </Text>
+        </VStack>
+
+        <Button
+          asChild
+          bg="var(--reppy-green)"
+          color="black"
+          fontWeight="700"
+          px={10}
+          h="12"
+          fontSize="md"
+          borderRadius="5px"
+          _hover={{
+            opacity: 0.9,
+            transform: "scale(1.05)",
+          }}
+          transition="all 0.2s"
+        >
+          <Link href="/register/create_profile">Create Profile</Link>
+        </Button>
+      </VStack>
+    );
+  }
+
   return (
     <VStack gap={6} align="stretch">
       <Card.Root
@@ -97,7 +125,7 @@ const ProfilePanel = () => {
                 }}
               >
                 <Avatar.Fallback fontSize="2xl" fontWeight="bold">
-                  {MOCK_USER.nickname.substring(0, 2).toUpperCase()}
+                  {hasProfile.nickname.substring(0, 2).toUpperCase()}
                 </Avatar.Fallback>
               </Avatar.Root>
             </Flex>
@@ -108,10 +136,10 @@ const ProfilePanel = () => {
                 fontSize={{ base: "xl", md: "2xl" }}
                 color={{ base: "black", _dark: "white" }}
               >
-                {MOCK_USER.nickname}
+                {hasProfile.nickname}
               </Heading>
               <Text fontSize="sm" color="gray.500" lineHeight="tall">
-                {MOCK_USER.bio}
+                {hasProfile.bio}
               </Text>
               <HStack gap={2} flexWrap="wrap">
                 <Badge
@@ -122,7 +150,7 @@ const ProfilePanel = () => {
                   gap={1}
                 >
                   <Flame size={12} />
-                  {MOCK_USER.currentStreak} day streak
+                  {hasProfile.current_streak} day streak
                 </Badge>
                 <Badge
                   variant="subtle"
@@ -131,7 +159,7 @@ const ProfilePanel = () => {
                   gap={1}
                 >
                   <Calendar size={12} />
-                  Joined {MOCK_USER.joinedDate}
+                  Joined {hasProfile.date_joined}
                 </Badge>
               </HStack>
             </VStack>
@@ -155,7 +183,7 @@ const ProfilePanel = () => {
                     fontWeight="bold"
                     color="var(--reppy-green)"
                   >
-                    {MOCK_USER.totalWorkouts}
+                    {hasProfile.totalWorkouts || "-"}
                   </Text>
                   <Text fontSize={{ base: "2xs", md: "xs" }} color="gray.500">
                     Posts
@@ -174,7 +202,7 @@ const ProfilePanel = () => {
                     fontWeight="bold"
                     color="var(--reppy-green)"
                   >
-                    {MOCK_USER.totalWorkouts}
+                    {hasProfile.totalWorkouts || "-"}
                   </Text>
                   <Text fontSize={{ base: "2xs", md: "xs" }} color="gray.500">
                     Workouts
@@ -193,7 +221,7 @@ const ProfilePanel = () => {
                     fontWeight="bold"
                     color="var(--reppy-green)"
                   >
-                    5
+                    -
                   </Text>
                   <Text fontSize={{ base: "2xs", md: "xs" }} color="gray.500">
                     Friends
@@ -205,7 +233,7 @@ const ProfilePanel = () => {
         </Box>
       </Card.Root>
 
-      <VStack align="start" px="15px">
+      {/* <VStack align="start" px="15px">
         <Heading
           fontSize={{ base: "xl", md: "2xl" }}
           color={{ base: "black", _dark: "white" }}
@@ -228,7 +256,6 @@ const ProfilePanel = () => {
             >
               <Box p={{ base: 4, md: 6 }}>
                 <VStack align="stretch" gap={2}>
-                  {/* Post Header */}
                   <Flex gap={3}>
                     <Avatar.Root
                       size="md"
@@ -236,11 +263,11 @@ const ProfilePanel = () => {
                       color="black"
                     >
                       <Avatar.Fallback fontSize="sm" fontWeight="bold">
-                        {MOCK_USER.nickname.substring(0, 2).toUpperCase()}
+                        {hasProfile.nickname.substring(0, 2).toUpperCase()}
                       </Avatar.Fallback>
                     </Avatar.Root>
                     <VStack align="start" gap={0} flex={1}>
-                      <Text fontSize="sm">{MOCK_USER.nickname}</Text>
+                      <Text fontSize="sm">{hasProfile.nickname}</Text>
                       <Text fontSize="xs" color="gray.500">
                         {post.date}
                       </Text>
@@ -306,7 +333,7 @@ const ProfilePanel = () => {
             </Card.Root>
           ))}
         </VStack>
-      </Flex>
+      </Flex> */}
     </VStack>
   );
 };
